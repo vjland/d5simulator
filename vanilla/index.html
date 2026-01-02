@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D5 SIM - Vanilla Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        theme: {
+                            base: '#000000',
+                            panel: '#0a0a0a',
+                            border: '#171717',
+                            brand: '#A3D78A',
+                            text: '#e2e8f0'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #000000; color: #e2e8f0; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: #000000; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #A3D78A; }
+        .active-tab { background-color: #A3D78A !important; color: #000000 !important; }
+        .hidden { display: none !important; }
+        canvas { width: 100% !important; height: 100% !important; }
+        
+        /* Big Road Styling */
+        .big-road-grid {
+            display: grid;
+            grid-template-rows: repeat(6, 14px);
+            grid-template-columns: repeat(60, 14px);
+            background-color: rgba(0,0,0,0.2);
+        }
+        .road-cell {
+            width: 14px;
+            height: 14px;
+            border-right: 1px solid rgba(23, 23, 23, 0.5);
+            border-bottom: 1px solid rgba(23, 23, 23, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .road-bead {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border-width: 1.5px;
+            position: relative;
+        }
+        .road-tie-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 4px;
+            height: 4px;
+            background: #22c55e;
+            border-radius: 50%;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col selection:bg-theme-brand selection:text-black">
+    <!-- Header -->
+    <header class="flex-shrink-0 border-b border-theme-border bg-theme-panel p-4 flex items-center justify-between z-10">
+        <div class="flex items-center gap-4">
+            <h1 class="text-lg font-black tracking-tighter text-white uppercase italic">
+                D5<span class="text-theme-brand">SIM</span>
+            </h1>
+            <div class="hidden md:flex gap-4 ml-8 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                <div class="flex flex-col">
+                    <span>Balance</span>
+                    <span id="stat-balance" class="text-sm text-theme-brand">0 Units</span>
+                </div>
+                <div class="flex flex-col border-l border-theme-border pl-4">
+                    <span>Hands</span>
+                    <span id="stat-hands" class="text-sm text-white">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <select id="sim-speed" class="bg-black border border-theme-border text-xs text-gray-400 p-1 px-2 focus:outline-none focus:border-theme-brand">
+                <option value="1500">Speed: Slow</option>
+                <option value="800" selected>Speed: Normal</option>
+                <option value="100">Speed: Turbo</option>
+            </select>
+            
+            <div class="flex bg-black border border-theme-border h-8 overflow-hidden">
+                <button id="btn-toggle" class="px-6 flex items-center justify-center transition-colors text-theme-brand hover:bg-theme-brand/10">
+                    <svg id="icon-play" class="w-4 h-4 fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    <svg id="icon-stop" class="w-4 h-4 fill-current hidden" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16"/></svg>
+                </button>
+                <button id="btn-ff" class="px-4 flex items-center justify-center border-l border-theme-border hover:bg-theme-brand hover:text-black transition-colors" title="Fast Forward">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/>
+                    </svg>
+                </button>
+                <button id="btn-reset" class="px-4 flex items-center justify-center border-l border-theme-border hover:bg-red-500 hover:text-white transition-colors" title="Reset Shoe">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col md:flex-row overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <nav class="flex-shrink-0 bg-theme-panel border-r border-theme-border flex md:flex-col overflow-auto md:w-16">
+            <button data-tab="perf" class="tab-btn flex-1 md:flex-none h-16 flex flex-col items-center justify-center transition-all active-tab">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                <span class="text-[8px] font-bold uppercase mt-1">Perf</span>
+            </button>
+            <button data-tab="road" class="tab-btn flex-1 md:flex-none h-16 flex flex-col items-center justify-center transition-all text-gray-500 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                <span class="text-[8px] font-bold uppercase mt-1">Road</span>
+            </button>
+            <button data-tab="log" class="tab-btn flex-1 md:flex-none h-16 flex flex-col items-center justify-center transition-all text-gray-500 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                <span class="text-[8px] font-bold uppercase mt-1">Log</span>
+            </button>
+        </nav>
+
+        <!-- Content Panels -->
+        <section class="flex-grow p-4 overflow-hidden flex flex-col gap-4">
+            <div class="flex-grow min-h-0 relative">
+                <!-- Panel Performance -->
+                <div id="panel-perf" class="tab-panel h-full flex flex-col bg-theme-panel border border-theme-border p-4">
+                    <h3 class="text-theme-brand text-xs font-bold uppercase mb-4 tracking-widest">Performance Units</h3>
+                    <div class="flex-grow relative">
+                        <canvas id="chart-performance"></canvas>
+                    </div>
+                </div>
+
+                <!-- Panel Road -->
+                <div id="panel-road" class="tab-panel h-full flex flex-col bg-theme-panel border border-theme-border p-4 hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-theme-brand text-xs font-bold uppercase tracking-widest">Big Road (High Density)</h3>
+                        <div class="flex gap-3 text-[9px] text-gray-500 font-mono">
+                            <div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full border border-red-500"></div> B</div>
+                            <div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full border border-blue-500"></div> P</div>
+                            <div class="flex items-center gap-1"><div class="w-1 h-1 bg-green-500"></div> T</div>
+                        </div>
+                    </div>
+                    <div class="flex-grow overflow-auto scrollbar-thin border border-theme-border bg-black/40">
+                        <div id="road-container" class="big-road-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Panel Log -->
+                <div id="panel-log" class="tab-panel h-full flex flex-col bg-theme-panel border border-theme-border overflow-hidden hidden">
+                    <div class="p-4 border-b border-theme-border flex justify-between items-center">
+                        <h3 class="text-theme-brand text-xs font-bold uppercase tracking-widest">Game Log</h3>
+                        <span id="log-count" class="text-[10px] text-gray-500 font-mono">0 hands</span>
+                    </div>
+                    <div class="flex-grow overflow-auto scrollbar-thin">
+                        <table class="w-full text-left text-xs text-gray-400 border-collapse">
+                            <thead class="bg-black text-gray-500 uppercase font-bold sticky top-0">
+                                <tr>
+                                    <th class="p-3 border-b border-theme-border">#</th>
+                                    <th class="p-3 border-b border-theme-border">Result</th>
+                                    <th class="p-3 border-b border-theme-border text-center">Score</th>
+                                    <th class="p-3 border-b border-theme-border text-center">Δ</th>
+                                    <th class="p-3 border-b border-theme-border text-center">Bet</th>
+                                    <th class="p-3 border-b border-theme-border text-right">Sum</th>
+                                </tr>
+                            </thead>
+                            <tbody id="log-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="hidden md:grid grid-cols-4 gap-4 h-20 flex-shrink-0">
+                <div class="bg-theme-panel border border-theme-border p-3 flex flex-col justify-center">
+                    <span class="text-[8px] uppercase font-bold text-gray-600 tracking-tighter">Banker Wins</span>
+                    <span id="stat-banker" class="text-lg font-black text-red-400">0</span>
+                </div>
+                <div class="bg-theme-panel border border-theme-border p-3 flex flex-col justify-center">
+                    <span class="text-[8px] uppercase font-bold text-gray-600 tracking-tighter">Player Wins</span>
+                    <span id="stat-player" class="text-lg font-black text-blue-400">0</span>
+                </div>
+                <div class="bg-theme-panel border border-theme-border p-3 flex flex-col justify-center">
+                    <span class="text-[8px] uppercase font-bold text-gray-600 tracking-tighter">Win Rate (D5)</span>
+                    <span id="stat-winrate" class="text-lg font-black text-theme-brand">0%</span>
+                </div>
+                <div class="bg-theme-panel border border-theme-border p-3 flex flex-col justify-center">
+                    <span class="text-[8px] uppercase font-bold text-gray-600 tracking-tighter">Max Drawdown</span>
+                    <span id="stat-drawdown" class="text-lg font-black text-gray-400">0 Units</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
