@@ -8,8 +8,6 @@ interface PerformanceChartProps {
 }
 
 const PerformanceChart: React.FC<PerformanceChartProps> = ({ history }) => {
-  // Filter out ties for a smoother balance curve if desired, 
-  // or just use cumulative points.
   const chartData = React.useMemo(() => {
     const data = [{ index: 0, balance: 0 }];
     let validSteps = 0;
@@ -26,7 +24,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ history }) => {
   }, [history]);
 
   return (
-    <div className="w-full h-full min-h-[300px] p-4 bg-theme-panel border border-theme-border rounded-none overflow-hidden">
+    <div className="w-full h-full min-h-[300px] p-4 bg-theme-panel border border-theme-border rounded-sm overflow-hidden">
       <h3 className="text-theme-brand text-xs font-bold uppercase mb-4 tracking-widest">Performance Units</h3>
       <div className="w-full h-[calc(100%-2rem)]">
         <ResponsiveContainer width="100%" height="100%">
@@ -52,14 +50,14 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ history }) => {
             />
             <Tooltip
               contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #171717', fontSize: '12px' }}
-              itemStyle={{ color: '#A3D78A' }}
+              itemStyle={{ color: '#94A378' }}
               labelStyle={{ display: 'none' }}
             />
             <ReferenceLine y={0} stroke="#334155" strokeDasharray="3 3" />
             <Line 
               type="monotone" 
               dataKey="balance" 
-              stroke="#A3D78A" 
+              stroke="#94A378" 
               strokeWidth={2} 
               dot={false}
               animationDuration={0}

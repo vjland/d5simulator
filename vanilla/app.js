@@ -42,7 +42,7 @@ function initChart() {
             datasets: [{
                 label: 'Units',
                 data: [{ x: 0, y: 0 }],
-                borderColor: '#A3D78A',
+                borderColor: '#94A378',
                 borderWidth: 2,
                 pointRadius: 0,
                 fill: false,
@@ -75,8 +75,8 @@ function initChart() {
                     backgroundColor: '#0a0a0a',
                     borderColor: '#171717',
                     borderWidth: 1,
-                    titleColor: '#A3D78A',
-                    bodyColor: '#A3D78A'
+                    titleColor: '#94A378',
+                    bodyColor: '#94A378'
                 }
             }
         }

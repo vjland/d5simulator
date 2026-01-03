@@ -123,17 +123,17 @@ const App: React.FC = () => {
           <select 
             value={state.speed} 
             onChange={(e) => setState(prev => ({ ...prev, speed: parseInt(e.target.value) }))}
-            className="bg-black border border-theme-border text-xs text-gray-400 p-1 px-2 focus:outline-none focus:border-theme-brand"
+            className="bg-black border border-theme-border text-xs text-gray-400 p-1 px-2 focus:outline-none focus:border-theme-brand rounded-sm"
           >
             <option value={1500}>Speed: Slow</option>
             <option value={800}>Speed: Normal</option>
             <option value={100}>Speed: Turbo</option>
           </select>
           
-          <div className="flex bg-black border border-theme-border h-8 overflow-hidden">
+          <div className="flex bg-black border border-theme-border h-8 overflow-hidden rounded-sm">
             <button 
               onClick={() => state.active ? stopSimulation() : startSimulation()}
-              className={`px-6 flex items-center justify-center transition-colors ${state.active ? 'text-red-500 hover:bg-red-500/10' : 'text-theme-brand hover:bg-theme-brand/10'}`}
+              className={`px-6 flex items-center justify-center transition-colors ${state.active ? 'text-red-500 hover:bg-red-500/10' : 'text-theme-control hover:bg-theme-control/10'}`}
             >
               {state.active ? (
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16"/></svg>
@@ -143,7 +143,7 @@ const App: React.FC = () => {
             </button>
             <button 
               onClick={fastForward}
-              className="px-4 flex items-center justify-center border-l border-theme-border hover:bg-theme-brand hover:text-black transition-colors"
+              className="px-4 flex items-center justify-center border-l border-theme-border text-gray-400 hover:text-theme-control transition-colors"
               title="Fast Forward to End"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -152,7 +152,7 @@ const App: React.FC = () => {
             </button>
             <button 
               onClick={resetShoe}
-              className="px-4 flex items-center justify-center border-l border-theme-border hover:bg-red-500 hover:text-white transition-colors"
+              className="px-4 flex items-center justify-center border-l border-theme-border text-gray-400 hover:text-red-500 transition-colors"
               title="Reset Shoe"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -173,14 +173,18 @@ const App: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 md:flex-none h-16 flex flex-col items-center justify-center transition-all ${
-                activeTab === tab.id ? 'bg-theme-brand text-black' : 'text-gray-500 hover:text-white'
+              className={`flex-1 md:flex-none h-16 flex flex-col items-center justify-center transition-all relative ${
+                activeTab === tab.id ? 'text-theme-brand' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={tab.icon} />
               </svg>
               <span className="text-[8px] font-bold uppercase mt-1">{tab.label}</span>
+              {/* Underline for active state */}
+              {activeTab === tab.id && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-theme-brand" />
+              )}
             </button>
           ))}
         </nav>
@@ -191,7 +195,7 @@ const App: React.FC = () => {
             {activeTab === 'perf' && <PerformanceChart history={state.history} />}
             {activeTab === 'road' && <BigRoad history={state.history} />}
             {activeTab === 'log' && (
-              <div className="h-full bg-theme-panel border border-theme-border flex flex-col overflow-hidden">
+              <div className="h-full bg-theme-panel border border-theme-border flex flex-col overflow-hidden rounded-sm">
                 <div className="p-4 border-b border-theme-border flex justify-between items-center">
                    <h3 className="text-theme-brand text-xs font-bold uppercase tracking-widest">Game Log</h3>
                    <span className="text-[10px] text-gray-500 font-mono">Showing {state.history.length} hands</span>
@@ -253,7 +257,7 @@ const App: React.FC = () => {
                { label: 'Win Rate (D5)', value: state.history.filter(h => h.outcome === 'WIN').length > 0 ? `${((state.history.filter(h => h.outcome === 'WIN').length / state.history.filter(h => h.outcome !== 'NO_BET' && h.outcome !== 'PUSH').length) * 100).toFixed(1)}%` : '0%', color: 'text-theme-brand' },
                { label: 'Max Drawdown', value: `${Math.min(0, ...state.history.map(h => h.runningBalance))} Units`, color: 'text-gray-400' }
             ].map((stat, i) => (
-              <div key={i} className="bg-theme-panel border border-theme-border p-3 flex flex-col justify-center">
+              <div key={i} className="bg-theme-panel border border-theme-border p-3 flex flex-col justify-center rounded-sm">
                 <span className="text-[8px] uppercase font-bold text-gray-600 tracking-tighter">{stat.label}</span>
                 <span className={`text-lg font-black ${stat.color}`}>{stat.value}</span>
               </div>
