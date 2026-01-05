@@ -10,7 +10,7 @@ const App: React.FC = () => {
     active: false,
     history: [],
     balance: 0,
-    speed: 1000,
+    speed: 2000, // Default to Normal (2s)
   });
 
   const [activeTab, setActiveTab] = useState<'perf' | 'road' | 'log'>('perf');
@@ -113,9 +113,9 @@ const App: React.FC = () => {
             onChange={(e) => setState(prev => ({ ...prev, speed: parseInt(e.target.value) }))}
             className="bg-black border border-theme-border text-xs text-gray-400 p-1 px-2 focus:outline-none focus:border-theme-brand rounded-sm"
           >
-            <option value={1500}>Speed: Slow</option>
-            <option value={800}>Speed: Normal</option>
-            <option value={100}>Speed: Turbo</option>
+            <option value={3000}>Speed: Slow</option>
+            <option value={2000}>Speed: Normal</option>
+            <option value={1000}>Speed: Turbo</option>
           </select>
           
           <div className="flex bg-black border border-theme-border h-8 overflow-hidden rounded-sm">

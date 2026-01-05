@@ -6,7 +6,7 @@ const state = {
     active: false,
     history: [],
     balance: 0,
-    speed: 800,
+    speed: 2000, // Updated to 2s Normal speed
     activeTab: 'perf'
 };
 
