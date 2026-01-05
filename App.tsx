@@ -105,18 +105,6 @@ const App: React.FC = () => {
           <h1 className="text-lg font-black tracking-tighter text-white uppercase italic">
             D5<span className="text-theme-brand">SIM</span>
           </h1>
-          <div className="hidden md:flex gap-4 ml-8 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-            <div className="flex flex-col">
-              <span>Balance</span>
-              <span className={`text-sm ${state.balance >= 0 ? 'text-theme-brand' : 'text-red-500'}`}>
-                {state.balance > 0 ? '+' : ''}{state.balance} Units
-              </span>
-            </div>
-            <div className="flex flex-col border-l border-theme-border pl-4">
-              <span>Hands</span>
-              <span className="text-sm text-white">{state.history.length}</span>
-            </div>
-          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -163,7 +151,7 @@ const App: React.FC = () => {
 
       {/* Main Area */}
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden">
-        {/* Sidebar Tabs (Mobile Bottom / Desktop Left) */}
+        {/* Sidebar Tabs */}
         <nav className="flex-shrink-0 bg-theme-panel border-r border-theme-border flex md:flex-col overflow-auto md:w-16">
           {[
             { id: 'perf', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', label: 'Perf' },
@@ -181,7 +169,6 @@ const App: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={tab.icon} />
               </svg>
               <span className="text-[8px] font-bold uppercase mt-1">{tab.label}</span>
-              {/* Underline for active state */}
               {activeTab === tab.id && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-theme-brand" />
               )}
@@ -198,7 +185,7 @@ const App: React.FC = () => {
               <div className="h-full bg-theme-panel border border-theme-border flex flex-col overflow-hidden rounded-sm">
                 <div className="p-4 border-b border-theme-border flex justify-between items-center">
                    <h3 className="text-theme-brand text-xs font-bold uppercase tracking-widest">Game Log</h3>
-                   <span className="text-[10px] text-gray-500 font-mono">Showing {state.history.length} hands</span>
+                   <span className="text-[10px] text-gray-500 font-mono">{state.history.length} hands</span>
                 </div>
                 <div className="flex-grow overflow-auto">
                   <table className="w-full text-left text-xs text-gray-400 border-collapse">
@@ -247,21 +234,6 @@ const App: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
-          
-          {/* Quick stats footer for desktop */}
-          <div className="hidden md:grid grid-cols-4 gap-4 h-20 flex-shrink-0">
-            {[
-               { label: 'Banker Wins', value: state.history.filter(h => h.winner === Winner.BANKER).length, color: 'text-red-400' },
-               { label: 'Player Wins', value: state.history.filter(h => h.winner === Winner.PLAYER).length, color: 'text-blue-400' },
-               { label: 'Win Rate (D5)', value: state.history.filter(h => h.outcome === 'WIN').length > 0 ? `${((state.history.filter(h => h.outcome === 'WIN').length / state.history.filter(h => h.outcome !== 'NO_BET' && h.outcome !== 'PUSH').length) * 100).toFixed(1)}%` : '0%', color: 'text-theme-brand' },
-               { label: 'Max Drawdown', value: `${Math.min(0, ...state.history.map(h => h.runningBalance))} Units`, color: 'text-gray-400' }
-            ].map((stat, i) => (
-              <div key={i} className="bg-theme-panel border border-theme-border p-3 flex flex-col justify-center rounded-sm">
-                <span className="text-[8px] uppercase font-bold text-gray-600 tracking-tighter">{stat.label}</span>
-                <span className={`text-lg font-black ${stat.color}`}>{stat.value}</span>
-              </div>
-            ))}
           </div>
         </section>
       </main>

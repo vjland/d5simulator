@@ -31,7 +31,6 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ history }) => {
     const svgElement = containerRef.current.querySelector('svg');
     if (!svgElement) return;
 
-    // Clone SVG to modify for export without affecting UI
     const clonedSvg = svgElement.cloneNode(true) as SVGElement;
     clonedSvg.setAttribute('style', 'background-color: #0a0a0a;');
     
@@ -39,7 +38,6 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ history }) => {
     const canvas = document.createElement('canvas');
     const svgSize = svgElement.getBoundingClientRect();
     
-    // Higher resolution for export
     const scale = 2;
     canvas.width = svgSize.width * scale;
     canvas.height = svgSize.height * scale;
@@ -90,7 +88,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ history }) => {
             <XAxis 
               dataKey="index" 
               type="number"
-              domain={[0, 'dataMax + 10']}
+              domain={[0, 80]}
               stroke="#4b5563" 
               fontSize={10} 
               tickLine={false} 
@@ -102,7 +100,7 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ history }) => {
               fontSize={10} 
               tickLine={false} 
               axisLine={false} 
-              domain={['dataMin - 5', 'dataMax + 5']}
+              domain={[-20, 20]}
               allowDataOverflow={true}
             />
             <Tooltip

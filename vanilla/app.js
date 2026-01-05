@@ -16,12 +16,6 @@ let chart = null;
 
 // DOM Elements
 const elements = {
-    statBalance: document.getElementById('stat-balance'),
-    statHands: document.getElementById('stat-hands'),
-    statBanker: document.getElementById('stat-banker'),
-    statPlayer: document.getElementById('stat-player'),
-    statWinrate: document.getElementById('stat-winrate'),
-    statDrawdown: document.getElementById('stat-drawdown'),
     logBody: document.getElementById('log-body'),
     logCount: document.getElementById('log-count'),
     roadContainer: document.getElementById('road-container'),
@@ -58,10 +52,13 @@ function initChart() {
                 x: {
                     type: 'linear',
                     min: 0,
+                    max: 80, // Fixed X scale
                     grid: { color: 'transparent', borderColor: '#171717' },
                     ticks: { color: '#4b5563', font: { size: 10 } }
                 },
                 y: {
+                    min: -20, // Fixed Y scale
+                    max: 20,
                     grid: { color: '#171717', borderColor: '#171717' },
                     ticks: { color: '#4b5563', font: { size: 10 } }
                 }
@@ -87,7 +84,6 @@ function renderBigRoad() {
     const COLS = 60;
     elements.roadContainer.innerHTML = '';
     
-    // Process beads
     const beads = [];
     let currentTieCount = 0;
     state.history.forEach(h => {
@@ -155,23 +151,6 @@ function renderBigRoad() {
 
 // --- Updates ---
 function updateUI() {
-    // Stats
-    elements.statBalance.textContent = `${state.balance > 0 ? '+' : ''}${state.balance} Units`;
-    elements.statBalance.className = `text-sm ${state.balance >= 0 ? 'text-theme-brand' : 'text-red-500'}`;
-    elements.statHands.textContent = state.history.length;
-    
-    const bankers = state.history.filter(h => h.winner === Winner.BANKER).length;
-    const players = state.history.filter(h => h.winner === Winner.PLAYER).length;
-    const wins = state.history.filter(h => h.outcome === 'WIN').length;
-    const totalBets = state.history.filter(h => h.outcome !== 'NO_BET' && h.outcome !== 'PUSH').length;
-    const winRate = totalBets > 0 ? ((wins / totalBets) * 100).toFixed(1) : 0;
-    const drawdown = Math.min(0, ...state.history.map(h => h.runningBalance));
-
-    elements.statBanker.textContent = bankers;
-    elements.statPlayer.textContent = players;
-    elements.statWinrate.textContent = `${winRate}%`;
-    elements.statDrawdown.textContent = `${drawdown} Units`;
-
     // Chart
     if (chart) {
         const chartData = [{ x: 0, y: 0 }];
@@ -186,10 +165,10 @@ function updateUI() {
         chart.update();
     }
 
-    // Road (Only update if visible for perf)
+    // Road (Only update if visible)
     if (state.activeTab === 'road') renderBigRoad();
 
-    // Log (Only first few rows or full if visible)
+    // Log
     if (state.activeTab === 'log') renderLog();
     elements.logCount.textContent = `${state.history.length} hands`;
 }
@@ -255,7 +234,6 @@ function downloadChart() {
   const canvas = document.getElementById('chart-performance');
   if (!canvas) return;
   
-  // Create a temporary canvas with background to ensure it's not transparent
   const tempCanvas = document.createElement('canvas');
   tempCanvas.width = canvas.width;
   tempCanvas.height = canvas.height;
@@ -301,7 +279,6 @@ elements.simSpeed.addEventListener('change', (e) => {
 
 elements.btnDownloadChart.addEventListener('click', downloadChart);
 
-// Tab Switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
