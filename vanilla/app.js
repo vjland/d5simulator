@@ -30,7 +30,8 @@ const elements = {
     iconStop: document.getElementById('icon-stop'),
     btnFF: document.getElementById('btn-ff'),
     btnReset: document.getElementById('btn-reset'),
-    simSpeed: document.getElementById('sim-speed')
+    simSpeed: document.getElementById('sim-speed'),
+    btnDownloadChart: document.getElementById('btn-download-chart')
 };
 
 // --- Chart Initialization ---
@@ -57,13 +58,10 @@ function initChart() {
                 x: {
                     type: 'linear',
                     min: 0,
-                    max: 85,
                     grid: { color: 'transparent', borderColor: '#171717' },
                     ticks: { color: '#4b5563', font: { size: 10 } }
                 },
                 y: {
-                    min: -20,
-                    max: 20,
                     grid: { color: '#171717', borderColor: '#171717' },
                     ticks: { color: '#4b5563', font: { size: 10 } }
                 }
@@ -252,6 +250,27 @@ function stopSim() {
     elements.iconStop.classList.add('hidden');
 }
 
+function downloadChart() {
+  if (!chart) return;
+  const canvas = document.getElementById('chart-performance');
+  if (!canvas) return;
+  
+  // Create a temporary canvas with background to ensure it's not transparent
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  tempCtx.fillStyle = '#0a0a0a';
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  tempCtx.drawImage(canvas, 0, 0);
+  
+  const link = document.createElement('a');
+  link.download = `d5-performance-vanilla-${Date.now()}.png`;
+  link.href = tempCanvas.toDataURL('image/png');
+  link.click();
+}
+
 // --- Events ---
 elements.btnToggle.addEventListener('click', () => {
     state.active ? stopSim() : startSim();
@@ -279,6 +298,8 @@ elements.btnReset.addEventListener('click', () => {
 elements.simSpeed.addEventListener('change', (e) => {
     state.speed = parseInt(e.target.value);
 });
+
+elements.btnDownloadChart.addEventListener('click', downloadChart);
 
 // Tab Switching
 document.querySelectorAll('.tab-btn').forEach(btn => {

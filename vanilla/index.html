@@ -34,6 +34,7 @@
         body { background-color: #000000; color: #e2e8f0; font-family: 'Inter', sans-serif; overflow: hidden; }
         .scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
         .scrollbar-thin::-webkit-scrollbar-track { background: #000000; }
+        .scrollbar-thin::-webkit-scrollbar-track:horizontal { background: #000000; }
         .scrollbar-thin::-webkit-scrollbar-thumb { background: #94A378; }
         
         .active-tab { color: #94A378 !important; position: relative; }
@@ -151,7 +152,14 @@
             <div class="flex-grow min-h-0 relative">
                 <!-- Panel Performance -->
                 <div id="panel-perf" class="tab-panel h-full flex flex-col bg-theme-panel border border-theme-border p-4 rounded-sm">
-                    <h3 class="text-theme-brand text-xs font-bold uppercase mb-4 tracking-widest">Performance Units</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-theme-brand text-xs font-bold uppercase tracking-widest">Performance Units</h3>
+                        <button id="btn-download-chart" title="Download Chart as PNG" class="text-theme-control hover:text-white transition-colors p-1">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                        </button>
+                    </div>
                     <div class="flex-grow relative">
                         <canvas id="chart-performance"></canvas>
                     </div>
