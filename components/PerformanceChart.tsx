@@ -11,15 +11,26 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ history }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const chartData = useMemo(() => {
-    const data = [{ index: 0, balance: 0 }];
+    const data: any[] = [{ index: 0, balance: 0 }];
     let validSteps = 0;
+    const balances: number[] = [];
+
     history.forEach((hand) => {
       if (hand.winner !== Winner.TIE) {
         validSteps++;
-        data.push({
+        balances.push(hand.runningBalance);
+        
+        const point: any = {
           index: validSteps,
           balance: hand.runningBalance
-        });
+        };
+
+        if (balances.length >= 5) {
+          const last5 = balances.slice(-5);
+          point.ma5 = last5.reduce((a, b) => a + b, 0) / 5;
+        }
+
+        data.push(point);
       }
     });
     return data;
@@ -116,6 +127,16 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({ history }) => {
               strokeWidth={2} 
               dot={false}
               animationDuration={0}
+              name="Balance"
+            />
+            <Line 
+              type="monotone" 
+              dataKey="ma5" 
+              stroke="#3b82f6" 
+              strokeWidth={1.5} 
+              dot={false}
+              animationDuration={0}
+              name="5-Period MA"
             />
           </LineChart>
         </ResponsiveContainer>

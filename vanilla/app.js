@@ -23,7 +23,6 @@ const elements = {
     iconPlay: document.getElementById('icon-play'),
     iconStop: document.getElementById('icon-stop'),
     btnFF: document.getElementById('btn-ff'),
-    btnReset: document.getElementById('btn-reset'),
     simSpeed: document.getElementById('sim-speed'),
     btnDownloadChart: document.getElementById('btn-download-chart')
 };
@@ -34,15 +33,26 @@ function initChart() {
     chart = new Chart(ctx, {
         type: 'line',
         data: {
-            datasets: [{
-                label: 'Units',
-                data: [{ x: 0, y: 0 }],
-                borderColor: '#94A378',
-                borderWidth: 2,
-                pointRadius: 0,
-                fill: false,
-                tension: 0
-            }]
+            datasets: [
+                {
+                    label: 'Units',
+                    data: [{ x: 0, y: 0 }],
+                    borderColor: '#94A378',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0
+                },
+                {
+                    label: '5-Period MA',
+                    data: [{ x: 0, y: null }],
+                    borderColor: '#3b82f6',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -154,14 +164,28 @@ function updateUI() {
     // Chart
     if (chart) {
         const chartData = [{ x: 0, y: 0 }];
+        const maData = [{ x: 0, y: null }];
         let validSteps = 0;
+        const balances = [];
+
         state.history.forEach(h => {
             if (h.winner !== Winner.TIE) {
                 validSteps++;
+                balances.push(h.runningBalance);
+                
                 chartData.push({ x: validSteps, y: h.runningBalance });
+
+                if (balances.length >= 5) {
+                    const last5 = balances.slice(-5);
+                    const ma5 = last5.reduce((a, b) => a + b, 0) / 5;
+                    maData.push({ x: validSteps, y: ma5 });
+                } else {
+                    maData.push({ x: validSteps, y: null });
+                }
             }
         });
         chart.data.datasets[0].data = chartData;
+        chart.data.datasets[1].data = maData;
         chart.update();
     }
 
@@ -216,6 +240,9 @@ function dealHand() {
 }
 
 function startSim() {
+    engine.initShoe();
+    state.history = [];
+    state.balance = 0;
     state.active = true;
     elements.iconPlay.classList.add('hidden');
     elements.iconStop.classList.remove('hidden');
@@ -256,20 +283,17 @@ elements.btnToggle.addEventListener('click', () => {
 
 elements.btnFF.addEventListener('click', () => {
     stopSim();
+    if (!engine.hasCards()) {
+        engine.initShoe();
+        state.history = [];
+        state.balance = 0;
+    }
     while (engine.hasCards()) {
         const result = engine.dealNextHand(state.history, state.balance);
         if (!result) break;
         state.history.push(result);
         state.balance = result.runningBalance;
     }
-    updateUI();
-});
-
-elements.btnReset.addEventListener('click', () => {
-    stopSim();
-    engine.initShoe();
-    state.history = [];
-    state.balance = 0;
     updateUI();
 });
 

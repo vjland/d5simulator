@@ -48,19 +48,9 @@ const App: React.FC = () => {
   }, [stopSimulation]);
 
   const startSimulation = useCallback(() => {
-    setState(prev => ({ ...prev, active: true }));
-  }, []);
-
-  const resetShoe = useCallback(() => {
-    stopSimulation();
     engineRef.current.initShoe();
-    setState(prev => ({
-      ...prev,
-      history: [],
-      balance: 0,
-      active: false,
-    }));
-  }, [stopSimulation]);
+    setState(prev => ({ ...prev, active: true, history: [], balance: 0 }));
+  }, []);
 
   const fastForward = useCallback(() => {
     stopSimulation();
@@ -68,7 +58,13 @@ const App: React.FC = () => {
     
     setState(prev => {
       let currentBalance = prev.balance;
-      const newHistory = [...prev.history];
+      let newHistory = [...prev.history];
+      
+      if (!engine.hasCards()) {
+        engine.initShoe();
+        currentBalance = 0;
+        newHistory = [];
+      }
       
       while (engine.hasCards()) {
         const result = engine.dealNextHand(newHistory, currentBalance);
@@ -132,18 +128,11 @@ const App: React.FC = () => {
             <button 
               onClick={fastForward}
               className="px-4 flex items-center justify-center border-l border-theme-border text-gray-400 hover:text-theme-control transition-colors"
-              title="Fast Forward to End"
+              title="Complete Shoe"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                 <polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/>
               </svg>
-            </button>
-            <button 
-              onClick={resetShoe}
-              className="px-4 flex items-center justify-center border-l border-theme-border text-gray-400 hover:text-red-500 transition-colors"
-              title="Reset Shoe"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             </button>
           </div>
         </div>
